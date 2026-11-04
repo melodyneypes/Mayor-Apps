@@ -54,11 +54,26 @@ class _AllDepartmentsComplianceModalState extends State<AllDepartmentsCompliance
 
   static const Color _accentTeal = Color(0xFF14B8A6);
 
+  List<DepartmentComplianceModel> _sortLeaderboard(List<DepartmentComplianceModel> items) {
+    final sorted = List<DepartmentComplianceModel>.from(items);
+    sorted.sort((a, b) {
+      // 1. Primary: Highest compliance rate first
+      final rateComp = b.complianceRate.compareTo(a.complianceRate);
+      if (rateComp != 0) return rateComp;
+      // 2. Secondary: Fewest overdue breaches first
+      final overdueComp = a.overdue.compareTo(b.overdue);
+      if (overdueComp != 0) return overdueComp;
+      // 3. Tertiary: Most completed requests first
+      return b.completed.compareTo(a.completed);
+    });
+    return sorted;
+  }
+
   @override
   void initState() {
     super.initState();
     _currentFilter = widget.initialFilter;
-    _leaderboard = List.from(widget.initialLeaderboard);
+    _leaderboard = _sortLeaderboard(widget.initialLeaderboard);
   }
 
   @override
@@ -81,7 +96,7 @@ class _AllDepartmentsComplianceModalState extends State<AllDepartmentsCompliance
           final updated = await widget.onFetchFiltered(newFilter);
           if (mounted) {
             setState(() {
-              _leaderboard = updated;
+              _leaderboard = _sortLeaderboard(updated);
               _isLoading = false;
             });
             widget.onFilterApplied?.call(newFilter, updated);

@@ -19,20 +19,69 @@ class DepartmentComplianceModel {
     required this.total,
   });
 
+  /// Standard Statutory ARTA SLA Compliance Calculation
+  /// Formula: Completed / (Completed + Overdue) * 100
+  /// Strict Edge Case: If Completed = 0 and Overdue > 0, Rate = 0.0%
+  static double computeComplianceRate({
+    required int completed,
+    required int overdue,
+    required int total,
+    double? serverRate,
+  }) {
+    // Edge Case 1: Overdue breaches exist but zero requests completed on time
+    if (overdue > 0 && completed == 0) {
+      return 0.0;
+    }
+
+    final evaluated = completed + overdue;
+    // Standard Case: We have evaluated resolutions (completed + overdue)
+    if (evaluated > 0) {
+      final rate = (completed / evaluated) * 100.0;
+      return double.parse(rate.clamp(0.0, 100.0).toStringAsFixed(1));
+    }
+
+    // Edge Case 2: No resolved transactions yet (either total = 0 or all pending within clock)
+    if (total == 0) {
+      return 100.0; // Clean slate (no breaches)
+    }
+
+    // If server passed a valid rate, use it, otherwise 100.0
+    return serverRate != null ? serverRate.clamp(0.0, 100.0) : 100.0;
+  }
+
   factory DepartmentComplianceModel.fromJson(Map<String, dynamic> json) {
+    final completed = (json['completed'] as num?)?.toInt() ?? 0;
+    final pending = (json['pending'] as num?)?.toInt() ?? 0;
+    final overdue = (json['overdue'] as num?)?.toInt() ?? 0;
+    final total = (json['total'] as num?)?.toInt() ?? (completed + pending + overdue);
+
+    final rawServerRate = (json['complianceRate'] as num?)?.toDouble();
+
+    // Use standardized formula to protect against backend miscalculations
+    final computedRate = computeComplianceRate(
+      completed: completed,
+      overdue: overdue,
+      total: total,
+      serverRate: rawServerRate,
+    );
+
     return DepartmentComplianceModel(
       officeCode: json['officeCode']?.toString() ?? '',
       officeName: json['officeName']?.toString() ?? 'Department Office',
-      complianceRate: (json['complianceRate'] as num?)?.toDouble() ?? 100.0,
-      completed: (json['completed'] as num?)?.toInt() ?? 0,
-      pending: (json['pending'] as num?)?.toInt() ?? 0,
-      overdue: (json['overdue'] as num?)?.toInt() ?? 0,
-      total: (json['total'] as num?)?.toInt() ?? 0,
+      complianceRate: computedRate,
+      completed: completed,
+      pending: pending,
+      overdue: overdue,
+      total: total,
     );
   }
 
-  bool get isCompliant => complianceRate >= 90.0;
-  bool get isModerate => complianceRate >= 75.0 && complianceRate < 90.0;
+  // Statutory ARTA SLA Thresholds:
+  // >= 90.0%: Compliant (Official Green Target)
+  // 75.0% - 89.9%: Moderate (Amber Alert)
+  // < 75.0%: Non-Compliant / At Risk (Rose Red Alert)
+  bool get isCompliant => complianceRate >= 90.0 && overdue == 0;
+  bool get isModerate => (complianceRate >= 75.0 && complianceRate < 90.0) || (complianceRate >= 90.0 && overdue > 0);
   bool get isAtRisk => complianceRate < 75.0;
 
   Color get statusColor {
@@ -44,7 +93,7 @@ class DepartmentComplianceModel {
   String get statusLabel {
     if (isCompliant) return "Compliant";
     if (isModerate) return "Moderate";
-    return "At Risk";
+    return "Non-Compliant";
   }
 
   IconData get officeIcon {
