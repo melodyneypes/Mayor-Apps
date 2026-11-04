@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/api/api_constants.dart';
+import '../../../../core/widgets/executive_image_viewer_dialog.dart';
 import '../models/announcement_item_model.dart';
 
 class AnnouncementDetailBottomSheet extends StatelessWidget {
@@ -21,57 +22,11 @@ class AnnouncementDetailBottomSheet extends StatelessWidget {
   }
 
   void _showZoomableImage(BuildContext context, String imageUrl) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.9),
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(12),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            InteractiveViewer(
-              panEnabled: true,
-              minScale: 0.8,
-              maxScale: 4.0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.contain,
-                  loadingBuilder: (ctx, child, progress) {
-                    if (progress == null) return child;
-                    return Container(
-                      height: 260,
-                      color: AppColors.surfaceElevated,
-                      child: const Center(
-                        child: CircularProgressIndicator(color: AppColors.accentAmber),
-                      ),
-                    );
-                  },
-                  errorBuilder: (ctx, err, stack) => Container(
-                    padding: const EdgeInsets.all(24),
-                    color: AppColors.surfaceElevated,
-                    child: const Text("Failed to load photo", style: TextStyle(color: Colors.white70)),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: IconButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.black54,
-                  foregroundColor: Colors.white,
-                ),
-                icon: const Icon(Icons.close_rounded, size: 22),
-              ),
-            ),
-          ],
-        ),
-      ),
+    ExecutiveImageViewerDialog.show(
+      context,
+      imageUrl: imageUrl,
+      title: announcement.title,
+      accentColor: AppColors.accentAmber,
     );
   }
 

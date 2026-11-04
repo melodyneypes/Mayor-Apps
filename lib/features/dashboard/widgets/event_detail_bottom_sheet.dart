@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/api/api_constants.dart';
+import '../../../../core/widgets/executive_image_viewer_dialog.dart';
 import '../models/event_item_model.dart';
 
 class EventDetailBottomSheet extends StatelessWidget {
@@ -22,60 +23,11 @@ class EventDetailBottomSheet extends StatelessWidget {
   }
 
   void _showZoomableImage(BuildContext context, String imageUrl) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.9),
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(12),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            InteractiveViewer(
-              panEnabled: true,
-              minScale: 0.8,
-              maxScale: 4.0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.contain,
-                  loadingBuilder: (ctx, child, progress) {
-                    if (progress == null) return child;
-                    return Container(
-                      height: 260,
-                      color: AppColors.surfaceElevated,
-                      child: const Center(
-                        child: CircularProgressIndicator(color: Color(0xFF8B5CF6)),
-                      ),
-                    );
-                  },
-                  errorBuilder: (ctx, err, stack) => Container(
-                    padding: const EdgeInsets.all(24),
-                    color: AppColors.surfaceElevated,
-                    child: const Text("Failed to load photo", style: TextStyle(color: Colors.white70)),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: GestureDetector(
-                onTap: () => Navigator.of(ctx).pop(),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    ExecutiveImageViewerDialog.show(
+      context,
+      imageUrl: imageUrl,
+      title: event.title,
+      accentColor: const Color(0xFF8B5CF6),
     );
   }
 
