@@ -426,6 +426,7 @@ class _AnnouncementsAuditModalState
                     ),
                     child: TextField(
                       controller: _searchController,
+                      textAlignVertical: TextAlignVertical.center,
                       onChanged: _onSearchChanged,
                       style: GoogleFonts.inter(
                         fontSize: 12,
@@ -433,7 +434,7 @@ class _AnnouncementsAuditModalState
                         color: AppColors.getTextPrimary(context),
                       ),
                       decoration: InputDecoration(
-                        hintText: "Search title or details...",
+                        hintText: "Search title or content...",
                         hintStyle: GoogleFonts.inter(
                           fontSize: 12,
                           color: AppColors.getTextSecondary(context),

@@ -562,6 +562,7 @@ class _ProjectsAuditModalState extends ConsumerState<ProjectsAuditModal> {
             ),
             child: TextField(
               controller: _searchController,
+              textAlignVertical: TextAlignVertical.center,
               onChanged: _onSearchChanged,
               style: GoogleFonts.inter(color: AppColors.getTextPrimary(context), fontSize: 12),
               decoration: InputDecoration(

@@ -244,6 +244,7 @@ class _AllDepartmentsComplianceModalState extends State<AllDepartmentsCompliance
                 // Search field
                 TextField(
                   controller: _searchController,
+                  textAlignVertical: TextAlignVertical.center,
                   onChanged: (val) {
                     setState(() {
                       _searchQuery = val;
@@ -267,7 +268,9 @@ class _AllDepartmentsComplianceModalState extends State<AllDepartmentsCompliance
                         : null,
                     filled: true,
                     fillColor: AppColors.getSurface(context),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    isDense: true,
+                    prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(color: AppColors.getBorder(context)),

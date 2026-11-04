@@ -96,6 +96,7 @@ class _BarangaySearchModalState extends State<BarangaySearchModal> {
           // Search Field
           TextField(
             controller: _searchController,
+            textAlignVertical: TextAlignVertical.center,
             style: TextStyle(color: AppColors.getTextPrimary(context), fontSize: 14),
             decoration: InputDecoration(
               prefixIcon: Icon(LucideIcons.search, size: 18, color: AppColors.getTextSecondary(context)),
@@ -103,7 +104,9 @@ class _BarangaySearchModalState extends State<BarangaySearchModal> {
               hintStyle: TextStyle(color: AppColors.getTextSecondary(context).withValues(alpha: 0.5), fontSize: 14),
               filled: true,
               fillColor: AppColors.getSurface(context),
-              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              isDense: true,
+              prefixIconConstraints: const BoxConstraints(minWidth: 42, minHeight: 42),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(color: AppColors.getBorder(context)),

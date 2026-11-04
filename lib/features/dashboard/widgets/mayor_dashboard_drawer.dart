@@ -309,7 +309,7 @@ class _MayorDashboardDrawerState extends State<MayorDashboardDrawer> {
                     });
                   },
                   decoration: InputDecoration(
-                    hintText: "Search sections (e.g. Events, ARTA)...",
+                    hintText: "Search features or sections...",
                     hintStyle: GoogleFonts.inter(
                       fontSize: 11.5,
                       color: AppColors.getTextSecondary(

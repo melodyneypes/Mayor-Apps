@@ -291,6 +291,7 @@ class _TourismDirectoryModalState extends ConsumerState<TourismDirectoryModal> {
               ),
               child: TextField(
                 controller: _searchController,
+                textAlignVertical: TextAlignVertical.center,
                 onChanged: _onSearchChanged,
                 style: GoogleFonts.inter(
                   color: AppColors.getTextPrimary(context),
@@ -298,7 +299,8 @@ class _TourismDirectoryModalState extends ConsumerState<TourismDirectoryModal> {
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Search tourist spot, category, or barangay...",
+                  isDense: true,
+                  hintText: "Search spot name, category, or barangay...",
                   hintStyle: GoogleFonts.inter(
                     color: AppColors.getTextSecondary(context).withValues(alpha: 0.7),
                     fontSize: 12.5,
@@ -308,6 +310,7 @@ class _TourismDirectoryModalState extends ConsumerState<TourismDirectoryModal> {
                     color: AppColors.getTextSecondary(context),
                     size: 19,
                   ),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: Icon(Icons.clear_rounded, color: AppColors.getTextSecondary(context), size: 16),
@@ -318,7 +321,7 @@ class _TourismDirectoryModalState extends ConsumerState<TourismDirectoryModal> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 ),
               ),
             ),

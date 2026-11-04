@@ -518,6 +518,7 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
               ),
               child: TextField(
                 controller: _searchController,
+                textAlignVertical: TextAlignVertical.center,
                 onChanged: _onSearchChanged,
                 style: GoogleFonts.inter(
                   color: AppColors.getTextPrimary(context),
@@ -525,7 +526,7 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
                   fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Search ref #, service, office code, or applicant...",
+                  hintText: "Search ref #, service, office, or applicant...",
                   hintStyle: GoogleFonts.inter(
                     color: AppColors.getTextSecondary(context).withValues(alpha: 0.7),
                     fontSize: 11.5,

@@ -435,6 +435,7 @@ class _EventsAuditModalState extends ConsumerState<EventsAuditModal> {
                     ),
                     child: TextField(
                       controller: _searchController,
+                      textAlignVertical: TextAlignVertical.center,
                       onChanged: _onSearchChanged,
                       style: GoogleFonts.inter(
                         fontSize: 12,
@@ -442,7 +443,7 @@ class _EventsAuditModalState extends ConsumerState<EventsAuditModal> {
                         color: AppColors.getTextPrimary(context),
                       ),
                       decoration: InputDecoration(
-                        hintText: "Search event, venue or activity...",
+                        hintText: "Search title, venue, or description...",
                         hintStyle: GoogleFonts.inter(
                           fontSize: 12,
                           color: AppColors.getTextSecondary(context),

@@ -208,7 +208,7 @@ class _OverdueBreachesModalState extends State<OverdueBreachesModal> {
               },
               style: GoogleFonts.inter(fontSize: 12, color: AppColors.getTextPrimary(context)),
               decoration: InputDecoration(
-                hintText: "Search reference, service, or handler...",
+                hintText: "Search ref #, service, handler, or office...",
                 hintStyle: GoogleFonts.inter(fontSize: 12, color: AppColors.getTextSecondary(context)),
                 prefixIcon: Icon(LucideIcons.search, size: 14, color: AppColors.getTextSecondary(context)),
                 suffixIcon: _searchQuery.isNotEmpty
@@ -224,7 +224,9 @@ class _OverdueBreachesModalState extends State<OverdueBreachesModal> {
                     : null,
                 filled: true,
                 fillColor: AppColors.getSurfaceElevated(context).withValues(alpha: 0.6),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                isDense: true,
+                  prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(color: AppColors.getBorder(context)),

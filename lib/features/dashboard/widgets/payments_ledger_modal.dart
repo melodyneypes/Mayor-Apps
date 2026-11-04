@@ -509,10 +509,11 @@ class _PaymentsLedgerModalState extends ConsumerState<PaymentsLedgerModal> {
             ),
             child: TextField(
               controller: _searchController,
+              textAlignVertical: TextAlignVertical.center,
               onChanged: _onSearchChanged,
               style: GoogleFonts.inter(fontSize: 12, color: AppColors.getTextPrimary(context)),
               decoration: InputDecoration(
-                hintText: "Search resident, OR #, or reference...",
+                hintText: "Search resident, OR #, or reference #...",
                 hintStyle: GoogleFonts.inter(
                   fontSize: 11,
                   color: AppColors.getTextSecondary(context).withValues(alpha: 0.7),
@@ -536,7 +537,9 @@ class _PaymentsLedgerModalState extends ConsumerState<PaymentsLedgerModal> {
                       )
                     : null,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 9),
+                isDense: true,
+                prefixIconConstraints: const BoxConstraints(minWidth: 38, minHeight: 38),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               ),
             ),
           ),

@@ -569,10 +569,11 @@ class _CitizenReportsModalState extends ConsumerState<CitizenReportsModal> {
             ),
             child: TextField(
               controller: _searchController,
+              textAlignVertical: TextAlignVertical.center,
               onChanged: _onSearchChanged,
               style: GoogleFonts.inter(color: AppColors.getTextPrimary(context), fontSize: 12),
               decoration: InputDecoration(
-                hintText: "Search by grievance, reporter, category...",
+                hintText: "Search grievance, reporter, or category...",
                 hintStyle: GoogleFonts.inter(
                   color: AppColors.getTextSecondary(context),
                   fontSize: 11.5,

@@ -272,6 +272,7 @@ class _KainanDirectoryModalState extends ConsumerState<KainanDirectoryModal> {
               ),
               child: TextField(
                 controller: _searchController,
+                textAlignVertical: TextAlignVertical.center,
                 onChanged: _onSearchChanged,
                 style: GoogleFonts.inter(
                   fontSize: 12,
@@ -279,6 +280,7 @@ class _KainanDirectoryModalState extends ConsumerState<KainanDirectoryModal> {
                   color: AppColors.getTextPrimary(context),
                 ),
                 decoration: InputDecoration(
+                  isDense: true,
                   hintText: "Search restaurant, cuisine or address...",
                   hintStyle: GoogleFonts.inter(
                     fontSize: 12,
@@ -286,6 +288,7 @@ class _KainanDirectoryModalState extends ConsumerState<KainanDirectoryModal> {
                     fontWeight: FontWeight.w500,
                   ),
                   prefixIcon: Icon(Icons.search_rounded, color: AppColors.getTextSecondary(context), size: 18),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: Icon(Icons.clear_rounded, size: 16, color: AppColors.getTextSecondary(context)),
@@ -301,7 +304,7 @@ class _KainanDirectoryModalState extends ConsumerState<KainanDirectoryModal> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 ),
               ),
             ),

@@ -256,12 +256,15 @@ class _TuluyanDirectoryModalState extends ConsumerState<TuluyanDirectoryModal> {
               ),
               child: TextField(
                 controller: _searchController,
+                textAlignVertical: TextAlignVertical.center,
                 onChanged: _onSearchChanged,
                 style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.getTextPrimary(context)),
                 decoration: InputDecoration(
-                  hintText: "Search lodging, resort or location...",
+                  isDense: true,
+                  hintText: "Search name, type, barangay, or address...",
                   hintStyle: GoogleFonts.inter(fontSize: 12, color: AppColors.getTextSecondary(context), fontWeight: FontWeight.w500),
                   prefixIcon: Icon(Icons.search_rounded, color: AppColors.getTextSecondary(context), size: 18),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: Icon(Icons.clear_rounded, size: 16, color: AppColors.getTextSecondary(context)),
@@ -277,7 +280,7 @@ class _TuluyanDirectoryModalState extends ConsumerState<TuluyanDirectoryModal> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 ),
               ),
             ),
