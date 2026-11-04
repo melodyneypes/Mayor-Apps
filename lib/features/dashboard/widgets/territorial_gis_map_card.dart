@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/api/api_constants.dart';
 import '../models/dashboard_model.dart';
 import 'mapandan_boundary.dart';
+import 'territorial_gis_fullscreen_page.dart';
 
 class TerritorialGisMapCard extends StatefulWidget {
   final List<MapPlaceItem> places;
@@ -32,189 +33,18 @@ class _TerritorialGisMapCardState extends State<TerritorialGisMapCard> {
     _mapController = MapController();
   }
 
-  // 100% Exact match to Web Map (components/maps/MapandanMap.tsx)
-  _CategoryConfig _getCategoryConfig(String category) {
-    switch (category) {
-      case "MUNICIPAL_FACILITY":
-        return _CategoryConfig(
-          pinColor: const Color(0xFF2563EB),
-          icon: LucideIcons.building2,
-          label: "Municipal Facility",
-        );
-      case "PUBLIC_MARKET":
-        return _CategoryConfig(
-          pinColor: const Color(0xFFD97706),
-          icon: LucideIcons.shoppingBag,
-          label: "Public Market",
-        );
-      case "HEALTH_CENTER":
-        return _CategoryConfig(
-          pinColor: const Color(0xFF059669),
-          icon: LucideIcons.heartPulse,
-          label: "Rural Health Unit / Clinic",
-        );
-      case "POLICE_STATION":
-        return _CategoryConfig(
-          pinColor: const Color(0xFF4F46E5),
-          icon: LucideIcons.shieldAlert,
-          label: "PNP / Police Station",
-        );
-      case "FIRE_STATION":
-        return _CategoryConfig(
-          pinColor: const Color(0xFFDC2626),
-          icon: LucideIcons.flame,
-          label: "BFP / Fire Station",
-        );
-      case "RESCUE_MDRRMO":
-        return _CategoryConfig(
-          pinColor: const Color(0xFFEA580C),
-          icon: LucideIcons.siren, // Ambulance/Emergency Siren
-          label: "Rescue / MDRRMO",
-        );
-      case "CEMETERY":
-        return _CategoryConfig(
-          pinColor: const Color(0xFF9333EA),
-          icon: LucideIcons.cross,
-          label: "Cemetery / Memorial",
-        );
-      case "OTHER":
-      default:
-        return _CategoryConfig(
-          pinColor: const Color(0xFFE11D48),
-          icon: LucideIcons.mapPin,
-          label: "Landmark",
-        );
-    }
-  }
+  void _openFullScreenMap() {
+    final currentCenter = _mapController.camera.center;
+    final currentZoom = _mapController.camera.zoom;
 
-  void _showPlaceDetailsModal(MapPlaceItem place, _CategoryConfig config) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-          decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.6),
-                blurRadius: 24,
-                spreadRadius: 4,
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: config.pinColor,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: config.pinColor.withValues(alpha: 0.5),
-                          blurRadius: 14,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Icon(config.icon, color: Colors.white, size: 22),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: config.pinColor.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: config.pinColor.withValues(alpha: 0.4)),
-                          ),
-                          child: Text(
-                            config.label.toUpperCase(),
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: config.pinColor,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          place.name,
-                          style: GoogleFonts.inter(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              if (place.description != null && place.description!.isNotEmpty) ...[
-                const SizedBox(height: 14),
-                Text(
-                  place.description!,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: const Color(0xFFCBD5E1),
-                    height: 1.4,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.04),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(LucideIcons.compass, size: 16, color: Color(0xFF38BDF8)),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Lat: ${place.latitude.toStringAsFixed(6)} | Lng: ${place.longitude.toStringAsFixed(6)}",
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 12,
-                        color: const Color(0xFF94A3B8),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => TerritorialGisFullScreenPage(
+          places: widget.places,
+          initialCenter: currentCenter,
+          initialZoom: currentZoom > 11.0 ? currentZoom : 14.5,
+        ),
+      ),
     );
   }
 
@@ -231,7 +61,7 @@ class _TerritorialGisMapCardState extends State<TerritorialGisMapCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header matching web: TERRITORIAL LANDMARKS & GIS MAP
+          // Header matching web with "View Map" Fullscreen Action
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
             child: Row(
@@ -270,6 +100,39 @@ class _TerritorialGisMapCardState extends State<TerritorialGisMapCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // "View Map" Action Button
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _openFullScreenMap,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF38BDF8).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.35)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(LucideIcons.maximize2, size: 13, color: Color(0xFF38BDF8)),
+                          const SizedBox(width: 5),
+                          Text(
+                            "View Map",
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF38BDF8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -325,7 +188,7 @@ class _TerritorialGisMapCardState extends State<TerritorialGisMapCard> {
                     // 4. Landmark Markers (100% Matched to Web Icons & Colors)
                     MarkerLayer(
                       markers: widget.places.map((place) {
-                        final config = _getCategoryConfig(place.category);
+                        final config = CategoryConfig.fromCategory(place.category);
                         final isSelected = _selectedPlace?.id == place.id;
 
                         return Marker(
@@ -342,7 +205,7 @@ class _TerritorialGisMapCardState extends State<TerritorialGisMapCard> {
                                 LatLng(place.latitude, place.longitude),
                                 16.5,
                               );
-                              _showPlaceDetailsModal(place, config);
+                              showPlaceDetailsModal(context, place, config);
                             },
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -418,34 +281,66 @@ class _TerritorialGisMapCardState extends State<TerritorialGisMapCard> {
                   ],
                 ),
 
-                // Floating Re-center Button (Bottom-Right)
+                // Floating Action Controls: Expand & Re-center (Bottom-Right)
                 Positioned(
                   bottom: 12,
                   right: 12,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        _mapController.move(_mapandanCenter, 14.2);
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: const Color(0xEE0F172A),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Fullscreen Expand Icon Button on embedded map
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _openFullScreenMap,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white24),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black54,
-                              blurRadius: 8,
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: const Color(0xEE0F172A),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white24),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black54,
+                                  blurRadius: 8,
+                                ),
+                              ],
                             ),
-                          ],
+                            child: const Icon(LucideIcons.maximize2, size: 15, color: Colors.white),
+                          ),
                         ),
-                        child: const Icon(LucideIcons.crosshair, size: 16, color: Colors.white),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+
+                      // Re-center Button
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            _mapController.move(_mapandanCenter, 14.2);
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: const Color(0xEE0F172A),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white24),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black54,
+                                  blurRadius: 8,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(LucideIcons.crosshair, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -455,16 +350,4 @@ class _TerritorialGisMapCardState extends State<TerritorialGisMapCard> {
       ),
     );
   }
-}
-
-class _CategoryConfig {
-  final Color pinColor;
-  final IconData icon;
-  final String label;
-
-  _CategoryConfig({
-    required this.pinColor,
-    required this.icon,
-    required this.label,
-  });
 }

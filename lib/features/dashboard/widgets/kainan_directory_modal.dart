@@ -511,11 +511,33 @@ class _KainanDetailSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          if (item.imageUrl != null && item.imageUrl!.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(item.imageUrl!, height: 180, width: double.infinity, fit: BoxFit.cover),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: 170,
+              width: double.infinity,
+              child: (item.imageUrl != null && item.imageUrl!.isNotEmpty)
+                  ? Image.network(
+                      item.imageUrl!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: AppColors.getSurfaceElevated(context),
+                          child: const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFF59E0B)),
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) => _buildKainanBannerPlaceholder(context),
+                    )
+                  : _buildKainanBannerPlaceholder(context),
             ),
+          ),
           const SizedBox(height: 16),
           Text(
             item.name,
@@ -523,15 +545,22 @@ class _KainanDetailSheet extends StatelessWidget {
               fontSize: 20,
               fontWeight: FontWeight.w900,
               color: AppColors.getTextPrimary(context),
+              height: 1.25,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          // Clean, responsive wrap for Cuisine and Barangay tags
           Wrap(
             spacing: 8,
-            runSpacing: 6,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
+              // Cuisine Type Badge with internal wrapping protection
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width - 40,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
@@ -542,19 +571,23 @@ class _KainanDetailSheet extends StatelessWidget {
                   children: [
                     const Icon(Icons.restaurant_menu_rounded, size: 14, color: Color(0xFFF59E0B)),
                     const SizedBox(width: 6),
-                    Text(
-                      item.cuisineType,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFFF59E0B),
+                    Flexible(
+                      child: Text(
+                        item.cuisineType,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFFF59E0B),
+                        ),
+                        softWrap: true,
                       ),
                     ),
                   ],
                 ),
               ),
+              // Barangay Pill Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.getSurfaceElevated(context),
                   borderRadius: BorderRadius.circular(8),
@@ -571,12 +604,13 @@ class _KainanDetailSheet extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
             item.description.isNotEmpty ? item.description : "Premier local dining spot in Mapandan.",
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 12.5,
               color: AppColors.getTextSecondary(context),
+              height: 1.45,
             ),
           ),
           const SizedBox(height: 16),
@@ -635,6 +669,77 @@ class _KainanDetailSheet extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKainanBannerPlaceholder(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 170,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFFD97706).withValues(alpha: 0.25),
+            const Color(0xFF0F172A),
+          ],
+        ),
+        border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.25)),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Icon(
+              Icons.restaurant_rounded,
+              size: 130,
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.06),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                      blurRadius: 16,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.restaurant_menu_rounded, size: 28, color: Color(0xFFF59E0B)),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  "EMAPANDAN FOOD DIRECTORY",
+                  style: GoogleFonts.inter(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.6,
+                    color: const Color(0xFFF59E0B),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

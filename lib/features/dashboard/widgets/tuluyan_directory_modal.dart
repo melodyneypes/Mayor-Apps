@@ -479,11 +479,33 @@ class _TuluyanDetailSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          if (item.imageUrl != null && item.imageUrl!.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(item.imageUrl!, height: 180, width: double.infinity, fit: BoxFit.cover),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: 170,
+              width: double.infinity,
+              child: (item.imageUrl != null && item.imageUrl!.isNotEmpty)
+                  ? Image.network(
+                      item.imageUrl!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: AppColors.getSurfaceElevated(context),
+                          child: const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0EA5E9)),
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) => _buildTuluyanBannerPlaceholder(context),
+                    )
+                  : _buildTuluyanBannerPlaceholder(context),
             ),
+          ),
           const SizedBox(height: 16),
           Text(item.name, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.getTextPrimary(context))),
           const SizedBox(height: 4),
@@ -526,6 +548,77 @@ class _TuluyanDetailSheet extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTuluyanBannerPlaceholder(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 170,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF0284C7).withValues(alpha: 0.25),
+            const Color(0xFF0F172A),
+          ],
+        ),
+        border: Border.all(color: const Color(0xFF0EA5E9).withValues(alpha: 0.25)),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Icon(
+              Icons.hotel_rounded,
+              size: 130,
+              color: const Color(0xFF0EA5E9).withValues(alpha: 0.06),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0EA5E9).withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFF0EA5E9).withValues(alpha: 0.4), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0EA5E9).withValues(alpha: 0.2),
+                      blurRadius: 16,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.hotel_rounded, size: 28, color: Color(0xFF0EA5E9)),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF0EA5E9).withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  "EMAPANDAN TULUYAN & LODGING",
+                  style: GoogleFonts.inter(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.6,
+                    color: const Color(0xFF0EA5E9),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
