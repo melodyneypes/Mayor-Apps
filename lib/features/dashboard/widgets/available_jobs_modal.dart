@@ -115,15 +115,6 @@ class _AvailableJobsModalState extends State<AvailableJobsModal> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(LucideIcons.briefcase, color: Color(0xFF10B981), size: 22),
-                ),
-                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,20 +375,13 @@ class _AvailableJobsModalState extends State<AvailableJobsModal> {
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.flash_on_rounded, size: 11, color: Color(0xFFF59E0B)),
-                            const SizedBox(width: 2),
-                            Text(
-                              "PRIORITY",
-                              style: GoogleFonts.inter(
-                                fontSize: 8.5,
-                                fontWeight: FontWeight.w900,
-                                color: const Color(0xFFF59E0B),
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          "PRIORITY",
+                          style: GoogleFonts.inter(
+                            fontSize: 8.5,
+                            fontWeight: FontWeight.w900,
+                            color: const Color(0xFFF59E0B),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -445,32 +429,27 @@ class _AvailableJobsModalState extends State<AvailableJobsModal> {
                 // Footer Info Row (Salary & View Details CTA)
                 Row(
                   children: [
-                    const Icon(LucideIcons.banknote, size: 14, color: Color(0xFF10B981)),
-                    const SizedBox(width: 5),
-                    Text(
-                      item.salaryGrade,
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF10B981),
+                    Expanded(
+                      child: Text(
+                        item.salaryGrade,
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF10B981),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const Spacer(),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "VIEW DETAILS",
-                          style: GoogleFonts.inter(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF10B981),
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: Color(0xFF10B981)),
-                      ],
+                    const SizedBox(width: 8),
+                    Text(
+                      "VIEW DETAILS",
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF10B981),
+                        letterSpacing: 0.3,
+                      ),
                     ),
                   ],
                 ),
