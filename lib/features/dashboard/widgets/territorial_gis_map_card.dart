@@ -159,6 +159,7 @@ class _TerritorialGisMapCardState extends State<TerritorialGisMapCard> {
                       urlTemplate:
                           'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                       userAgentPackageName: 'com.emapandan.mayor_apps',
+                      maxNativeZoom: 18,
                       maxZoom: 19,
                     ),
 

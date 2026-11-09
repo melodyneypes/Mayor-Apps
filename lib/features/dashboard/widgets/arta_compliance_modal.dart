@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/api/api_constants.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/admin_service_model.dart';
+import '../models/department_compliance_model.dart';
 
 class ArtaComplianceModal extends ConsumerStatefulWidget {
   final AdminServicesCounts? summaryCounts;
@@ -64,8 +65,14 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
 
     if (widget.summaryCounts != null) {
       _kpiTotal = widget.summaryCounts!.arta;
-      _kpiComplianceRate = widget.summaryCounts!.artaComplianceRate;
       _kpiOverdue = widget.summaryCounts!.artaOverdue;
+      _kpiCompleted = (_kpiTotal - _kpiOverdue).clamp(0, _kpiTotal);
+      _kpiComplianceRate = DepartmentComplianceModel.computeComplianceRate(
+        completed: _kpiCompleted,
+        overdue: _kpiOverdue,
+        total: _kpiTotal,
+        serverRate: widget.summaryCounts!.artaComplianceRate,
+      );
     }
 
     _scrollController.addListener(_onScroll);
@@ -249,14 +256,49 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
           if (page == 1) _requests.clear();
           _requests.addAll(rawList.map((e) => ArtaItemModel.fromJson(e)).toList());
 
-          // Update dynamic KPI summaries from live API
+          // Update dynamic KPI summaries from live API with mathematical statutory rigor
           if (res.data['stats'] != null) {
             final stats = res.data['stats'];
-            _kpiTotal = (stats['totalRequests'] as num?)?.toInt() ?? totalCount;
-            _kpiComplianceRate = (stats['complianceRate'] as num?)?.toDouble() ?? 100.0;
-            _kpiCompleted = (stats['completed'] as num?)?.toInt() ?? 0;
-            _kpiPending = (stats['pendingClock'] as num?)?.toInt() ?? 0;
-            _kpiOverdue = (stats['overdueBreaches'] as num?)?.toInt() ?? 0;
+            final completed = (stats['completed'] as num?)?.toInt() ?? 0;
+            final pending = (stats['pendingClock'] as num?)?.toInt() ?? 0;
+            final overdue = (stats['overdueBreaches'] as num?)?.toInt() ?? 0;
+            final total = (stats['totalRequests'] as num?)?.toInt() ?? (completed + pending + overdue > 0 ? completed + pending + overdue : totalCount);
+            final serverRate = (stats['complianceRate'] as num?)?.toDouble();
+
+            _kpiCompleted = completed;
+            _kpiPending = pending;
+            _kpiOverdue = overdue;
+            _kpiTotal = total;
+            _kpiComplianceRate = DepartmentComplianceModel.computeComplianceRate(
+              completed: completed,
+              overdue: overdue,
+              total: total,
+              serverRate: serverRate,
+            );
+          } else if (_requests.isNotEmpty) {
+            // Client-side fallback reconciliation if backend stats object is missing
+            int completed = 0;
+            int pending = 0;
+            int overdue = 0;
+            for (final item in _requests) {
+              final status = item.slaStatus.toUpperCase();
+              if (status == 'BREACHED') {
+                overdue++;
+              } else if (status == 'PENDING') {
+                pending++;
+              } else {
+                completed++;
+              }
+            }
+            _kpiCompleted = completed;
+            _kpiPending = pending;
+            _kpiOverdue = overdue;
+            _kpiTotal = totalCount > 0 ? totalCount : _requests.length;
+            _kpiComplianceRate = DepartmentComplianceModel.computeComplianceRate(
+              completed: completed,
+              overdue: overdue,
+              total: _kpiTotal,
+            );
           }
 
           _isLoading = false;
@@ -379,7 +421,7 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
                         ],
                       ),
                       Text(
-                        "Anti-Red Tape Act • Statutory SLA Real-Time Audit",
+                        "Anti-Red Tape Act • Statutory SLA Audit",
                         style: GoogleFonts.inter(
                           fontSize: 10.5,
                           color: AppColors.getTextSecondary(context),
@@ -452,59 +494,61 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
             ),
           ),
 
-          // Top 4 Metrics Strip (Interactive tap to filter)
-          Padding(
+          // Top 5 Metrics Strip (Interactive tap to filter - Responsive horizontal scroll)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: Row(
               children: [
-                Expanded(
-                  child: _buildMetricMiniCard(
-                    label: "COMPLIANCE",
-                    value: "${_kpiComplianceRate.toStringAsFixed(1)}%",
-                    color: const Color(0xFF10B981),
-                    icon: Icons.check_circle_outline_rounded,
-                    isActive: _selectedSlaFilter == 'COMPLIANT',
-                    onTap: () => _onFilterChanged('COMPLIANT'),
-                  ),
+                _buildMetricMiniCard(
+                  label: "COMPLIANCE",
+                  value: "${_kpiComplianceRate.toStringAsFixed(1)}%",
+                  color: const Color(0xFF10B981),
+                  icon: Icons.check_circle_outline_rounded,
+                  isActive: _selectedSlaFilter == 'COMPLIANT',
+                  onTap: () => _onFilterChanged('COMPLIANT'),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMetricMiniCard(
-                    label: "TOTAL AUDIT",
-                    value: "$_kpiTotal",
-                    color: accentColor,
-                    icon: Icons.assignment_outlined,
-                    isActive: _selectedSlaFilter == 'ALL',
-                    onTap: () => _onFilterChanged('ALL'),
-                  ),
+                _buildMetricMiniCard(
+                  label: "TOTAL AUDIT",
+                  value: "$_kpiTotal",
+                  color: accentColor,
+                  icon: Icons.assignment_outlined,
+                  isActive: _selectedSlaFilter == 'ALL',
+                  onTap: () => _onFilterChanged('ALL'),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMetricMiniCard(
-                    label: "PENDING",
-                    value: "$_kpiPending",
-                    color: const Color(0xFF3B82F6),
-                    icon: Icons.schedule_rounded,
-                    isActive: _selectedSlaFilter == 'PENDING',
-                    onTap: () => _onFilterChanged('PENDING'),
-                  ),
+                _buildMetricMiniCard(
+                  label: "COMPLETED",
+                  value: "$_kpiCompleted",
+                  color: const Color(0xFF10B981),
+                  icon: Icons.task_alt_rounded,
+                  isActive: _selectedSlaFilter == 'COMPLIANT',
+                  onTap: () => _onFilterChanged('COMPLIANT'),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMetricMiniCard(
-                    label: "OVERDUE",
-                    value: "$_kpiOverdue",
-                    color: _kpiOverdue > 0 ? const Color(0xFFEF4444) : const Color(0xFF94A3B8),
-                    icon: Icons.warning_amber_rounded,
-                    isActive: _selectedSlaFilter == 'BREACHED',
-                    onTap: () => _onFilterChanged('BREACHED'),
-                  ),
+                _buildMetricMiniCard(
+                  label: "PENDING",
+                  value: "$_kpiPending",
+                  color: const Color(0xFF3B82F6),
+                  icon: Icons.schedule_rounded,
+                  isActive: _selectedSlaFilter == 'PENDING',
+                  onTap: () => _onFilterChanged('PENDING'),
+                ),
+                const SizedBox(width: 8),
+                _buildMetricMiniCard(
+                  label: "OVERDUE",
+                  value: "$_kpiOverdue",
+                  color: _kpiOverdue > 0 ? const Color(0xFFEF4444) : const Color(0xFF94A3B8),
+                  icon: Icons.warning_amber_rounded,
+                  isActive: _selectedSlaFilter == 'BREACHED',
+                  onTap: () => _onFilterChanged('BREACHED'),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
           // Search Bar
           Padding(
@@ -552,26 +596,7 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
             ),
           ),
 
-          const SizedBox(height: 8),
-
-          // Filter Chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                _buildFilterChip("ALL", "All Requests ($_kpiTotal)"),
-                const SizedBox(width: 8),
-                _buildFilterChip("PENDING", "Pending Clock ($_kpiPending)", color: const Color(0xFF3B82F6)),
-                const SizedBox(width: 8),
-                _buildFilterChip("BREACHED", "Breached SLA ($_kpiOverdue)", color: const Color(0xFFEF4444)),
-                const SizedBox(width: 8),
-                _buildFilterChip("COMPLIANT", "Compliant Requests ($_kpiCompleted)", color: const Color(0xFF10B981)),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Divider(height: 1, color: AppColors.getBorder(context)),
 
           // Body Content
@@ -619,7 +644,8 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        constraints: const BoxConstraints(minWidth: 108),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isActive ? color.withValues(alpha: 0.15) : AppColors.getSurface(context),
           borderRadius: BorderRadius.circular(12),
@@ -627,86 +653,34 @@ class _ArtaComplianceModalState extends ConsumerState<ArtaComplianceModal> {
             color: isActive ? color : color.withValues(alpha: 0.25),
             width: isActive ? 1.5 : 1,
           ),
+          boxShadow: AppColors.getCardShadow(context),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 12, color: color),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.inter(
-                      fontSize: 8.5,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.2,
-                      color: AppColors.getTextSecondary(context),
-                    ),
+                Icon(icon, size: 12.5, color: color),
+                const SizedBox(width: 5),
+                Text(
+                  label,
+                  style: GoogleFonts.inter(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
+                    color: AppColors.getTextSecondary(context),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 3),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                value,
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w900,
-                  color: color,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String value, String label, {Color? color}) {
-    final isSelected = _selectedSlaFilter == value;
-    final activeColor = color ?? const Color(0xFF3B82F6);
-
-    return InkWell(
-      onTap: () => _onFilterChanged(value),
-      borderRadius: BorderRadius.circular(10),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? activeColor.withValues(alpha: 0.2) : AppColors.getSurface(context),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? activeColor : AppColors.getBorder(context),
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (color != null) ...[
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: activeColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-            ],
+            const SizedBox(height: 4),
             Text(
-              label,
+              value,
               style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? (AppColors.isDark(context) ? Colors.white : activeColor) : AppColors.getTextSecondary(context),
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                color: color,
               ),
             ),
           ],

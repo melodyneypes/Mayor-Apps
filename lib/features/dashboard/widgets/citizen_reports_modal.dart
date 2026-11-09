@@ -472,7 +472,7 @@ class _CitizenReportsModalState extends ConsumerState<CitizenReportsModal> {
             title: "TOTAL",
             value: "$total",
             icon: LucideIcons.layers,
-            color: Colors.white,
+            color: AppColors.getTextPrimary(context),
           ),
           const SizedBox(width: 8),
           _buildKpiCard(
