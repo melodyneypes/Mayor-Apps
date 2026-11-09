@@ -1119,36 +1119,8 @@ class _TourismDetailSheet extends StatelessWidget {
                     ),
                   ],
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                 ],
-              ),
-            ),
-          ),
-
-          // Bottom Bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            child: SizedBox(
-              width: double.infinity,
-              height: 44,
-              child: ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.getSurfaceElevated(context),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: AppColors.getBorder(context)),
-                  ),
-                ),
-                child: Text(
-                  "CLOSE",
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
-                ),
               ),
             ),
           ),

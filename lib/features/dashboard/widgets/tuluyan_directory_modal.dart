@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/api/api_constants.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/admin_service_model.dart';
@@ -451,16 +451,44 @@ class _TuluyanDetailSheet extends StatelessWidget {
   final AccommodationItemModel item;
   const _TuluyanDetailSheet({required this.item});
 
-  void _copyAddress(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: "${item.name}, ${item.address}"));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: const Color(0xFF0EA5E9),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        content: Text("Address copied to clipboard!", style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
-      ),
-    );
+  Future<void> _openGoogleMaps(BuildContext context) async {
+    if (item.googleMapsUrl == null || item.googleMapsUrl!.trim().isEmpty) return;
+
+    final targetUri = Uri.parse(item.googleMapsUrl!.trim());
+
+    try {
+      final launched = await launchUrl(
+        targetUri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFFEF4444),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: Text(
+              "Could not open Google Maps.",
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFFEF4444),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: Text(
+              "Unable to open navigation link.",
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -540,18 +568,20 @@ class _TuluyanDetailSheet extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () => _copyAddress(context),
-            icon: const Icon(Icons.copy_rounded, size: 16),
-            label: const Text("COPY ADDRESS & LOCATION"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0EA5E9),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          if (item.googleMapsUrl != null && item.googleMapsUrl!.trim().isNotEmpty) ...[
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => _openGoogleMaps(context),
+              icon: const Icon(Icons.navigation_rounded, size: 16),
+              label: const Text("OPEN IN GOOGLE MAPS"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0EA5E9),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
