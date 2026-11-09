@@ -600,8 +600,14 @@ class _PaymentsLedgerModalState extends ConsumerState<PaymentsLedgerModal> {
     final bgy = widget.selectedBarangay.isEmpty
         ? "Municipality-Wide"
         : widget.selectedBarangay;
-    final dateRangeStr =
-        "${DateFormat('MMM d').format(_startDate)} - ${DateFormat('MMM d').format(_endDate)}";
+    final String dateRangeStr;
+    if (_startDate.year == _endDate.year) {
+      dateRangeStr =
+          "${DateFormat('MMM d').format(_startDate)} - ${DateFormat('MMM d, yyyy').format(_endDate)}";
+    } else {
+      dateRangeStr =
+          "${DateFormat('MMM d, yyyy').format(_startDate)} - ${DateFormat('MMM d, yyyy').format(_endDate)}";
+    }
     final isDark = AppColors.isDark(context);
 
     return Padding(

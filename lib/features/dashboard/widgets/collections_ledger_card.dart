@@ -40,9 +40,10 @@ class _CollectionsLedgerCardState extends ConsumerState<CollectionsLedgerCard> {
   void initState() {
     super.initState();
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     _filter = CollectionsFilterCriteria(
-      startDate: now.subtract(const Duration(days: 30)),
-      endDate: now,
+      startDate: today.subtract(const Duration(days: 30)),
+      endDate: DateTime(now.year, now.month, now.day, 23, 59, 59),
       paymentMethod: 'ALL',
       activePreset: '30D',
     );

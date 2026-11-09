@@ -81,18 +81,19 @@ class _CollectionsFilterModalState extends State<CollectionsFilterModal> {
 
   void _applyPreset(String presetKey) {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     DateTime start;
     DateTime end = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
     switch (presetKey) {
       case 'TODAY':
-        start = DateTime(now.year, now.month, now.day);
+        start = today;
         break;
       case '7D':
-        start = now.subtract(const Duration(days: 7));
+        start = today.subtract(const Duration(days: 7));
         break;
       case '30D':
-        start = now.subtract(const Duration(days: 30));
+        start = today.subtract(const Duration(days: 30));
         break;
       case 'MONTH':
         start = DateTime(now.year, now.month, 1);
