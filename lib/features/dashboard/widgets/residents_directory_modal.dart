@@ -341,7 +341,13 @@ class _ResidentsDirectoryModalState
             _buildDetailItem(LucideIcons.venusAndMars, "Gender", resident.gender),
             _buildDetailItem(LucideIcons.heart, "Civil Status", resident.civilStatus),
             if (resident.contactNumber != null && resident.contactNumber!.isNotEmpty)
-              _buildDetailItem(LucideIcons.phone, "Contact Number", resident.contactNumber!),
+              _buildDetailItem(
+                LucideIcons.phone,
+                "Contact Number",
+                resident.contactNumber!.startsWith('enc:') || resident.contactNumber!.length > 25
+                    ? "Secured / Encrypted Contact"
+                    : resident.contactNumber!,
+              ),
             if (resident.email != null && resident.email!.isNotEmpty)
               _buildDetailItem(LucideIcons.mail, "Email Address", resident.email!),
             _buildDetailItem(
@@ -1133,7 +1139,10 @@ class _ResidentsDirectoryModalState
                   const SizedBox(height: 5),
 
                   // Demographics & Sector Tags
-                  Row(
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       // Gender tag
                       Container(
@@ -1151,7 +1160,6 @@ class _ResidentsDirectoryModalState
                           ),
                         ),
                       ),
-                      const SizedBox(width: 5),
 
                       // Civil status tag
                       Container(
@@ -1170,43 +1178,36 @@ class _ResidentsDirectoryModalState
                         ),
                       ),
 
-                      const SizedBox(width: 5),
-
                       // Sector badges
-                      if (resident.isSenior) ...[
+                      if (resident.isSenior)
                         _buildMiniSectorTag("SR", const Color(0xFFF59E0B)),
-                        const SizedBox(width: 4),
-                      ],
-                      if (resident.isPWD) ...[
+                      if (resident.isPWD)
                         _buildMiniSectorTag("PWD", const Color(0xFF10B981)),
-                        const SizedBox(width: 4),
-                      ],
-                      if (resident.isSoloParent) ...[
+                      if (resident.isSoloParent)
                         _buildMiniSectorTag("SOLO", const Color(0xFFEC4899)),
-                        const SizedBox(width: 4),
-                      ],
-                      if (resident.is4Ps) ...[
+                      if (resident.is4Ps)
                         _buildMiniSectorTag("4PS", const Color(0xFF8B5CF6)),
-                        const SizedBox(width: 4),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 6),
 
-                  // Subtitle: ID & Onboarded Date
+                  // Subtitle: ID/Contact & Onboarded Date
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        resident.contactNumber != null && resident.contactNumber!.isNotEmpty
-                            ? resident.contactNumber!
-                            : "ID: ${resident.id.substring(0, resident.id.length > 8 ? 8 : resident.id.length)}",
-                        style: GoogleFonts.inter(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.getTextSecondary(context),
+                      Expanded(
+                        child: Text(
+                          _getDisplayContactOrId(resident),
+                          style: GoogleFonts.inter(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.getTextSecondary(context),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         "Onboarded $dateStr",
                         style: GoogleFonts.inter(
@@ -1242,6 +1243,16 @@ class _ResidentsDirectoryModalState
         ),
       ),
     );
+  }
+
+  String _getDisplayContactOrId(ResidentDirectoryItem resident) {
+    if (resident.contactNumber != null && resident.contactNumber!.isNotEmpty) {
+      if (resident.contactNumber!.startsWith('enc:') || resident.contactNumber!.length > 25) {
+        return "ID: ${resident.id.substring(0, resident.id.length > 8 ? 8 : resident.id.length)}";
+      }
+      return resident.contactNumber!;
+    }
+    return "ID: ${resident.id.substring(0, resident.id.length > 8 ? 8 : resident.id.length)}";
   }
 }
 

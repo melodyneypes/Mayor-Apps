@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/api/api_constants.dart';
@@ -489,21 +488,6 @@ class _JobDetailSheet extends StatelessWidget {
 
   const _JobDetailSheet({required this.job});
 
-  void _copyJobDetails(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: "${job.title} - ${job.officeName} | ${job.salaryGrade}"));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: const Color(0xFF10B981),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        content: Text(
-          "Position details copied to clipboard!",
-          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -606,53 +590,38 @@ class _JobDetailSheet extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Salary & Compensation Card
+          // Salary & Compensation Card (Clean without decorative icon)
           Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
                   const Color(0xFF10B981).withValues(alpha: 0.15),
-                  const Color(0xFF0F172A),
+                  AppColors.isDark(context) ? const Color(0xFF0F172A) : const Color(0xFFECFDF5),
                 ],
               ),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
+                Text(
+                  "COMPENSATION & RATE",
+                  style: GoogleFonts.inter(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.isDark(context) ? const Color(0xFF34D399) : const Color(0xFF059669),
+                    letterSpacing: 0.5,
                   ),
-                  child: const Icon(LucideIcons.banknote, color: Color(0xFF10B981), size: 22),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "COMPENSATION & RATE",
-                        style: GoogleFonts.inter(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.getTextSecondary(context),
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        job.salaryGrade,
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF10B981),
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 4),
+                Text(
+                  job.salaryGrade,
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF10B981),
                   ),
                 ),
               ],
@@ -672,29 +641,23 @@ class _JobDetailSheet extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Icon(LucideIcons.graduationCap, size: 15, color: Color(0xFF38BDF8)),
-                    const SizedBox(width: 8),
-                    Text(
-                      "CSC QUALIFICATION STANDARDS",
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.getTextSecondary(context),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
+                Text(
+                  "CSC QUALIFICATION STANDARDS",
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.getTextSecondary(context),
+                    letterSpacing: 0.5,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                _buildQualificationRow("Education", job.education),
-                const SizedBox(height: 8),
-                _buildQualificationRow("Experience", job.experience),
-                const SizedBox(height: 8),
-                _buildQualificationRow("Training", job.training),
-                const SizedBox(height: 8),
-                _buildQualificationRow("Eligibility", job.eligibility),
+                const SizedBox(height: 14),
+                _buildQualificationRow(context, "Education", job.education),
+                const SizedBox(height: 10),
+                _buildQualificationRow(context, "Experience", job.experience),
+                const SizedBox(height: 10),
+                _buildQualificationRow(context, "Training", job.training),
+                const SizedBox(height: 10),
+                _buildQualificationRow(context, "Eligibility", job.eligibility),
               ],
             ),
           ),
@@ -712,28 +675,26 @@ class _JobDetailSheet extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Icon(LucideIcons.fileCheck, size: 15, color: Color(0xFF10B981)),
-                    const SizedBox(width: 8),
-                    Text(
-                      "DUTIES & RESPONSIBILITIES",
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.getTextSecondary(context),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
+                Text(
+                  "DUTIES & RESPONSIBILITIES",
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.getTextSecondary(context),
+                    letterSpacing: 0.5,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   job.description,
-                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.getTextSecondary(context), height: 1.4),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppColors.getTextSecondary(context),
+                    height: 1.45,
+                  ),
                 ),
                 if (job.duties.isNotEmpty) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   ...job.duties.map((duty) => Padding(
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Row(
@@ -743,7 +704,11 @@ class _JobDetailSheet extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 duty,
-                                style: GoogleFonts.inter(fontSize: 11.5, color: AppColors.getTextPrimary(context), height: 1.35),
+                                style: GoogleFonts.inter(
+                                  fontSize: 11.5,
+                                  color: AppColors.getTextPrimary(context),
+                                  height: 1.35,
+                                ),
                               ),
                             ),
                           ],
@@ -753,67 +718,34 @@ class _JobDetailSheet extends StatelessWidget {
               ],
             ),
           ),
-
-          const SizedBox(height: 18),
-
-          // How to Apply / HRMO Submission Notice
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF38BDF8).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.25)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(LucideIcons.info, size: 16, color: Color(0xFF38BDF8)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    "Submit Personal Data Sheet (CS Form 212), Transcript of Records, and Certificate of Eligibility to the Human Resource Management Office (HRMO), 1st Floor Town Hall, Mapandan, Pangasinan.",
-                    style: GoogleFonts.inter(
-                      fontSize: 10.5,
-                      color: const Color(0xFF94A3B8),
-                      height: 1.35,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Copy / Share Position Info Button
-          ElevatedButton.icon(
-            onPressed: () => _copyJobDetails(context),
-            icon: const Icon(Icons.copy_rounded, size: 16),
-            label: const Text("COPY POSITION & REQUIREMENTS"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildQualificationRow(String label, String value) {
+  Widget _buildQualificationRow(BuildContext context, String label, String value) {
+    final isDark = AppColors.isDark(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label.toUpperCase(),
-          style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w800, color: const Color(0xFF38BDF8), letterSpacing: 0.4),
+          style: GoogleFonts.inter(
+            fontSize: 9.5,
+            fontWeight: FontWeight.w800,
+            color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+            letterSpacing: 0.4,
+          ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 3),
         Text(
           value,
-          style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: Colors.white),
+          style: GoogleFonts.inter(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: AppColors.getTextPrimary(context),
+            height: 1.35,
+          ),
         ),
       ],
     );
